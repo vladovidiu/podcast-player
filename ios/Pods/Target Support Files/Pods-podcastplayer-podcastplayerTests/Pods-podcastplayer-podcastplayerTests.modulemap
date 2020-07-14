@@ -1,0 +1,6 @@
+module Pods_podcastplayer_podcastplayerTests {
+  umbrella header "Pods-podcastplayer-podcastplayerTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
