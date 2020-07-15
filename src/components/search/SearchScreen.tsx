@@ -1,43 +1,62 @@
-import React from 'react';
-import {Box, Text} from 'react-native-design-utility';
+import React, {useState} from 'react';
+import {Box} from 'react-native-design-utility';
 import {TextInput, StyleSheet, FlatList} from 'react-native';
+import {useLazyQuery} from '@apollo/client';
 
 import {theme} from '../../constants/theme';
-import KeyboardDismissView from '../KeyboardDismissView';
+import {
+  SearchQuery,
+  SearchQuery_search,
+  SearchQueryVariables,
+} from '../../types/graphql';
+import searchQuery from '../../graphql/searchQuery';
+import {SearchEmpty} from './SearchEmpty';
+import {SearchElement} from './SearchElement';
+import {SearchIndicator} from './SearchIndicator';
+import {SearchError} from './SearchError';
 
 const SearchScreen = () => {
-  return (
-    <KeyboardDismissView>
-      <Box f={1} bg="white">
-        <Box h={50} w="100%" px="sm" my="sm">
-          <TextInput
-            style={style.input}
-            placeholder="Search Podcast"
-            selectionColor={theme.color.blueLight}
-          />
-        </Box>
+  const [term, setTerm] = useState<string>('');
+  const [search, {data, loading, error}] = useLazyQuery<
+    SearchQuery,
+    SearchQueryVariables
+  >(searchQuery);
 
-        <FlatList
-          style={style.list}
-          data={[{id: 1}, {id: 2}]}
-          renderItem={() => (
-            <Box h={90} dir="row" align="center" px="sm">
-              <Box h={70} w={70} bg="blueLight" radius={10} mr={10} />
-              <Box>
-                <Text bold>Joe Rogan</Text>
-                <Text size="xs" color="grey">
-                  This is the subtitle
-                </Text>
-                <Text size="xs" color="blueLight">
-                  400 episodes
-                </Text>
-              </Box>
-            </Box>
-          )}
-          keyExtractor={(item) => String(item.id)}
+  const onSearch = async () => {
+    try {
+      await search({variables: {term}});
+    } catch (err) {
+      console.log('error', err);
+    }
+  };
+
+  return (
+    <Box f={1} bg="white">
+      <Box h={50} w="100%" px="sm" my="sm">
+        <TextInput
+          style={style.input}
+          placeholder="Search Podcast"
+          selectionColor={theme.color.blueLight}
+          onChangeText={setTerm}
+          autoCorrect={false}
+          onSubmitEditing={onSearch}
+          value={term}
         />
       </Box>
-    </KeyboardDismissView>
+
+      {error ? (
+        <SearchError {...{error}} />
+      ) : (
+        <FlatList<SearchQuery_search>
+          keyboardShouldPersistTaps="never"
+          data={data?.search ?? []}
+          ListHeaderComponent={<>{loading && <SearchIndicator />}</>}
+          ListEmptyComponent={<>{!loading && <SearchEmpty />}</>}
+          renderItem={({item}) => <SearchElement {...{item}} />}
+          keyExtractor={(item) => String(item.feedUrl)}
+        />
+      )}
+    </Box>
   );
 };
 
@@ -49,9 +68,6 @@ const style = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: theme.space.sm,
     fontSize: theme.text.size.md,
-  },
-  list: {
-    minHeight: '100%',
   },
 });
 
