@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Text} from 'react-native-design-utility';
 import {RouteProp, useRoute} from '@react-navigation/native';
-import {FlatList, Image, StyleSheet} from 'react-native';
+import {FlatList, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {useQuery} from '@apollo/client';
 
@@ -16,10 +16,12 @@ import feedQuery from '../../graphql/feedQuery';
 import ItemSeparator from '../ItemSeparator';
 import {ActivityIndicatorWrapper} from '../ActivityIndicatorWrapper';
 import {getWeekDay, humanReadableDuration} from '../../lib/dateTimeHelpers';
+import {usePlayerContext} from '../../contexts/PlayerContext';
 
 type NavigationParams = RouteProp<SearchStackRouteParamsList, 'PodcastDetails'>;
 
 const PodcastDetailsScreen = () => {
+  const playerContext = usePlayerContext();
   const {data: podcastData} = useRoute<NavigationParams>().params ?? [];
   const {data, loading} = useQuery<FeedQuery, FeedQueryVariables>(feedQuery, {
     variables: {feedUrl: podcastData.feedUrl},
@@ -54,11 +56,26 @@ const PodcastDetailsScreen = () => {
 
             <Box px="sm" mb="md" dir="row" align="center">
               <Box mr={10}>
-                <FeatherIcon
-                  name="play"
-                  size={30}
-                  color={theme.color.blueLight}
-                />
+                <TouchableOpacity
+                  onPress={() => {
+                    const el = data?.feed[0];
+                    if (!el) {
+                      return;
+                    }
+                    playerContext.play({
+                      title: el.title,
+                      artwork: el.image ?? podcastData.thumbnail,
+                      id: el.linkUrl,
+                      url: el.linkUrl,
+                      artist: podcastData.artist,
+                    });
+                  }}>
+                  <FeatherIcon
+                    name="play"
+                    size={30}
+                    color={theme.color.blueLight}
+                  />
+                </TouchableOpacity>
               </Box>
               <Box f={1}>
                 <Text bold>Play</Text>
