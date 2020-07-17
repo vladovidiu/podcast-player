@@ -3,31 +3,48 @@ import {Box, Text} from 'react-native-design-utility';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {FlatList, Image, StyleSheet} from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import {useQuery} from '@apollo/client';
 
 import {SearchStackRouteParamsList} from '../../navigators/types';
 import {theme} from '../../constants/theme';
+import {
+  FeedQuery,
+  FeedQueryVariables,
+  FeedQuery_feed,
+} from '../../types/graphql';
+import feedQuery from '../../graphql/feedQuery';
+import ItemSeparator from '../ItemSeparator';
+import {ActivityIndicatorWrapper} from '../ActivityIndicatorWrapper';
+import {getWeekDay, humanReadableDuration} from '../../lib/dateTimeHelpers';
 
 type NavigationParams = RouteProp<SearchStackRouteParamsList, 'PodcastDetails'>;
 
 const PodcastDetailsScreen = () => {
-  const {data} = useRoute<NavigationParams>().params ?? [];
+  const {data: podcastData} = useRoute<NavigationParams>().params ?? [];
+  const {data, loading} = useQuery<FeedQuery, FeedQueryVariables>(feedQuery, {
+    variables: {feedUrl: podcastData.feedUrl},
+  });
+
   return (
     <Box f={1} bg="white">
-      <FlatList
+      <FlatList<FeedQuery_feed>
         ListHeaderComponent={
           <>
             <Box dir="row" px="sm" mt="sm" mb="md">
-              {data.thumbnail && (
+              {podcastData.thumbnail && (
                 <Box mr={10}>
-                  <Image source={{uri: data.thumbnail}} style={s.thumbnail} />
+                  <Image
+                    source={{uri: podcastData.thumbnail}}
+                    style={s.thumbnail}
+                  />
                 </Box>
               )}
               <Box f={1}>
                 <Text size="md" bold>
-                  {data.podcastName}
+                  {podcastData.podcastName}
                 </Text>
                 <Text size="xs" color="grey">
-                  {data.artist}
+                  {podcastData.artist}
                 </Text>
                 <Text size="xs" color="blueLight">
                   {'Subscribed'}
@@ -43,9 +60,9 @@ const PodcastDetailsScreen = () => {
                   color={theme.color.blueLight}
                 />
               </Box>
-              <Box>
+              <Box f={1}>
                 <Text bold>Play</Text>
-                <Text size="sm">#400 - The Last Episode</Text>
+                <Text size="sm">{data?.feed[0].title}</Text>
               </Box>
             </Box>
 
@@ -54,29 +71,27 @@ const PodcastDetailsScreen = () => {
                 Episodes
               </Text>
             </Box>
+
+            {loading && <ActivityIndicatorWrapper />}
           </>
         }
-        data={[{id: '1'}, {id: '2'}]}
-        ItemSeparatorComponent={() => (
-          <Box w="100%" px="sm" my="sm">
-            <Box style={{height: StyleSheet.hairlineWidth}} bg="greyLighter" />
-          </Box>
-        )}
-        renderItem={() => (
+        data={data?.feed}
+        ItemSeparatorComponent={() => <ItemSeparator />}
+        renderItem={({item}) => (
           <Box px="sm">
             <Text size="xs" color="grey">
-              Friday
+              {getWeekDay(new Date(item.pubDate)).toUpperCase()}
             </Text>
-            <Text bold>#400 Episodes</Text>
-            <Text size="sm" color="grey">
-              Sumary
+            <Text bold>{item.title}</Text>
+            <Text size="sm" color="grey" numberOfLines={2}>
+              {item.description}
             </Text>
             <Text size="sm" color="grey">
-              3h 13min
+              {humanReadableDuration(item.duration)}
             </Text>
           </Box>
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.linkUrl}
       />
     </Box>
   );

@@ -6,7 +6,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import ListenNowScreen from '../components/listenNow/ListenNowScreen';
 import LibraryScreen from '../components/library/LibraryScreen';
 import SearchScreen from '../components/search/SearchScreen';
-import PodcastDetailsScreen from '../components/podcastDetails/podcastDetailsScreen';
+import PodcastDetailsScreen from '../components/podcastDetails/PodcastDetailsScreen';
 import {theme} from '../constants/theme';
 
 const ListenNowStack = createStackNavigator();

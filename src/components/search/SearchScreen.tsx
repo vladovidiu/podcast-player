@@ -13,7 +13,7 @@ import {
 import searchQuery from '../../graphql/searchQuery';
 import {SearchEmpty} from './SearchEmpty';
 import {SearchElement} from './SearchElement';
-import {SearchIndicator} from './SearchIndicator';
+import {ActivityIndicatorWrapper} from '../ActivityIndicatorWrapper';
 import {SearchError} from './SearchError';
 
 const SearchScreen = () => {
@@ -62,7 +62,7 @@ const SearchScreen = () => {
         <FlatList<SearchQuery_search>
           keyboardShouldPersistTaps="never"
           data={data?.search ?? []}
-          ListHeaderComponent={<>{loading && <SearchIndicator />}</>}
+          ListHeaderComponent={<>{loading && <ActivityIndicatorWrapper />}</>}
           ListEmptyComponent={<>{!loading && <SearchEmpty />}</>}
           renderItem={({item}) => <SearchElement {...{item}} />}
           keyExtractor={(item) => String(item.feedUrl)}
