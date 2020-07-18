@@ -31,7 +31,7 @@ export const MiniPlayer = () => {
         <Box f={1} mr={20}>
           <Text numberOfLines={1}>{playerContext.currentTrack.title}</Text>
         </Box>
-        <Box>
+        <Box mr={10}>
           {playerContext.isPaused && (
             <TouchableOpacity onPress={() => playerContext.play()}>
               <FeatherIcon name="play" size={30} />
@@ -49,6 +49,11 @@ export const MiniPlayer = () => {
               <FeatherIcon name="square" size={30} />
             </TouchableOpacity>
           )}
+        </Box>
+        <Box>
+          <TouchableOpacity onPress={() => playerContext.seekTo(30)}>
+            <FeatherIcon name="rotate-cw" size={30} />
+          </TouchableOpacity>
         </Box>
       </Box>
     </Box>

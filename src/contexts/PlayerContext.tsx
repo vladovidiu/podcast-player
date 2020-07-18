@@ -15,6 +15,7 @@ interface PlayerContextType {
   currentTrack: Track | null;
   play: (track?: Track) => void;
   pause: () => void;
+  seekTo: (seconds?: number) => void;
 }
 
 export const PlayerContext = createContext<PlayerContextType>({
@@ -25,6 +26,7 @@ export const PlayerContext = createContext<PlayerContextType>({
   currentTrack: null,
   play: () => null,
   pause: () => null,
+  seekTo: () => null,
 });
 
 export const PlayerContextProvider: React.FC = (props) => {
@@ -52,12 +54,20 @@ export const PlayerContextProvider: React.FC = (props) => {
 
       return;
     }
+
+    if (currentTrack) {
+      await TrackPlayer.reset();
+    }
     await TrackPlayer.add([track]);
     setCurrentTrack(track);
     TrackPlayer.play();
   };
   const pause = async () => {
     await TrackPlayer.pause();
+  };
+  const seekTo = async (seconds: number = 30) => {
+    const position = await TrackPlayer.getPosition();
+    await TrackPlayer.seekTo(position + seconds);
   };
 
   const value: PlayerContextType = {
@@ -68,6 +78,7 @@ export const PlayerContextProvider: React.FC = (props) => {
     currentTrack,
     play,
     pause,
+    seekTo,
   };
 
   return (
