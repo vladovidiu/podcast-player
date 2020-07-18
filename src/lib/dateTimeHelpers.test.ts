@@ -26,6 +26,7 @@ describe('dateTimeHelpers', () => {
       ${'03:13:00'} | ${'3hrs. 13min'}
       ${'12:13:00'} | ${'12hrs. 13min'}
       ${'02:00:00'} | ${'2hrs. 00min'}
+      ${'00:50:00'} | ${'50min'}
     `(
       'should return $expected for the given $duration',
       ({duration, expected}) => {

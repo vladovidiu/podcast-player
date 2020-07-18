@@ -2,9 +2,9 @@ import React from 'react';
 import {Box, Text} from 'react-native-design-utility';
 import {Image, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import {SearchQuery_search} from '../../types/graphql';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 interface Props {
   item: SearchQuery_search;
