@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Box, Text} from 'react-native-design-utility';
-import {Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {useQuery} from '@apollo/client';
 
@@ -9,10 +9,13 @@ import {FeedQuery, FeedQueryVariables} from '../../types/graphql';
 import feedQuery from '../../graphql/feedQuery';
 import {SearchStackRouteParamsList} from '../../navigators/types';
 import PlayLastEpisode from './PlayLastEpisode';
+import {DBContext} from '../../contexts/DBContext';
+import {PodcastModel} from '../../models/PodcastModel';
 
 type NavigationParams = RouteProp<SearchStackRouteParamsList, 'PodcastDetails'>;
 
 const PodcastDetailsHeader = () => {
+  const dbContext = useContext(DBContext);
   const {data: podcastData} = useRoute<NavigationParams>().params ?? [];
   const {data, loading} = useQuery<FeedQuery, FeedQueryVariables>(feedQuery, {
     variables: {feedUrl: podcastData.feedUrl},
@@ -32,9 +35,22 @@ const PodcastDetailsHeader = () => {
           <Text size="xs" color="grey">
             {podcastData.artist}
           </Text>
-          <Text size="xs" color="blueLight">
-            {'Subscribed'}
-          </Text>
+          <TouchableOpacity
+            onPress={() =>
+              dbContext.subToPodcast(
+                new PodcastModel({
+                  episodesCount: podcastData.episodesCount,
+                  thumbnail: podcastData.thumbnail,
+                  name: podcastData.podcastName,
+                  artist: podcastData.artist,
+                  feedUrl: podcastData.feedUrl,
+                }),
+              )
+            }>
+            <Text size="xs" color="blueLight">
+              {'Subscribed'}
+            </Text>
+          </TouchableOpacity>
         </Box>
       </Box>
 

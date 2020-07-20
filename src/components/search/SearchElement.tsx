@@ -30,8 +30,7 @@ export const SearchElement: React.FC<Props> = ({item}) => {
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PodcastDetailsScreen', {
-              screen: 'PodcastDetailsScreen',
-              params: {data: item},
+              data: item,
             })
           }>
           <Text size="xs" color="blueLight">

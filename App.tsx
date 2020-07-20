@@ -10,6 +10,7 @@ import MainStackNavigator from './src/navigators/MainStackNavigator';
 import {client} from './src/graphql/client';
 import {ActivityIndicatorWrapper} from './src/components/ActivityIndicatorWrapper';
 import {PlayerContextProvider} from './src/contexts/PlayerContext';
+import {DBProvider} from './src/contexts/DBContext';
 
 const App = () => {
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -31,17 +32,19 @@ const App = () => {
 
   return (
     <UtilityThemeProvider theme={theme}>
-      <ApolloProvider client={client}>
-        {isReady ? (
-          <PlayerContextProvider>
-            <NavigationContainer>
-              <MainStackNavigator />
-            </NavigationContainer>
-          </PlayerContextProvider>
-        ) : (
-          <ActivityIndicatorWrapper />
-        )}
-      </ApolloProvider>
+      <DBProvider>
+        <ApolloProvider client={client}>
+          {isReady ? (
+            <PlayerContextProvider>
+              <NavigationContainer>
+                <MainStackNavigator />
+              </NavigationContainer>
+            </PlayerContextProvider>
+          ) : (
+            <ActivityIndicatorWrapper />
+          )}
+        </ApolloProvider>
+      </DBProvider>
     </UtilityThemeProvider>
   );
 };
